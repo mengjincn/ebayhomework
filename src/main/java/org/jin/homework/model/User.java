@@ -43,4 +43,34 @@ public class User {
     public void setResources(Set<String> resources) {
         this.resources = resources;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder(getClass().getSimpleName())
+                .append('[')
+                .append("userId=").append(userId == null ? "null" : userId)
+                .append(", accountName=").append(accountName == null ? "null" : "'" + accountName + "'")
+                .append(", role=").append(role == null ? "null" : "'" + role + "'")
+                .append(", resources=").append(resourcesToString())
+                .append(']')
+                .toString();
+    }
+
+    private String resourcesToString() {
+        if (resources == null) {
+            return "null";
+        }
+        if (resources.isEmpty()) {
+            return "[]";
+        }
+        StringBuilder sb = new StringBuilder("[");
+        for (String resource : resources) {
+            if (sb.length() > 1) {
+                sb.append(", ");
+            }
+            sb.append(resource == null ? "null" : "'" + resource + "'");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
 }

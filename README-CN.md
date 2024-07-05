@@ -119,6 +119,25 @@
 
 您可以使用 cURL、Postman 或任何 HTTP 客户端来测试 API 端点。记得在您的请求中包含带有 Base64 编码用户信息的 `Authorization` 头。
 
+curl测试命令：
+```shell
+# 测试添加用户访问权限
+curl -X POST --location "http://localhost:8080/admin/addUser" \
+    -H "Authorization: ewoidXNlcklkIjoxMjM0NTYsCiJhY2NvdW50TmFtZSI6ICJYWFhYWFhYIiwKInJvbGUiOiAiYWRtaW4iCn0=" \
+    -H "Content-Type: application/json" \
+    -d '{
+          "userId": 42,
+          "endpoint": [
+            "resource D",
+            "resource B",
+            "resource C"
+          ]
+        }'
+# 测试访问资源resource B
+curl -X GET --location "http://localhost:8080/user/resource%20B" \
+    -H "Authorization: ewoidXNlcklkIjo0MiwKImFjY291bnROYW1lIjogIlhYWFhYWFgiLAoicm9sZSI6ICJhZG1pbiIKfQ=="
+```
+
 ## 注意事项
 
 - 本系统使用基于文件的持久化来存储用户访问信息。在生产环境中，您可能需要考虑使用数据库以获得更好的可扩展性和性能。

@@ -5,23 +5,32 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.jin.homework.model.ApiResponse;
 import org.jin.homework.model.User;
 import org.jin.homework.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public AdminController(UserService userService) {
+        this.userService = userService;
+    }
+
 
     @PostMapping("/addUser")
     public ResponseEntity<ApiResponse<Object>> addUser(HttpServletRequest request,
-                                     @RequestBody Map<String, Object> userAccess) {
+                                                       @RequestBody Map<String, Object> userAccess) {
         try {
             User admin = (User) request.getAttribute("user");
             if (admin == null || !"admin".equals(admin.getRole())) {
