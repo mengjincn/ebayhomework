@@ -7,6 +7,7 @@ import org.jin.homework.model.User;
 import org.jin.homework.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,7 @@ public class UserController {
     }
 
     @GetMapping("/{resource}")
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<Object>> accessResource(HttpServletRequest request,
                                                               @PathVariable String resource) {
         try {

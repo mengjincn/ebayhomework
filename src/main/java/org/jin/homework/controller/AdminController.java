@@ -7,6 +7,7 @@ import org.jin.homework.model.User;
 import org.jin.homework.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +29,9 @@ public class AdminController {
     }
 
 
+
     @PostMapping("/addUser")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<ApiResponse<Object>> addUser(HttpServletRequest request,
                                                        @RequestBody Map<String, Object> userAccess) {
         try {
@@ -39,8 +42,8 @@ public class AdminController {
             }
 
             Long userId = Long.parseLong(userAccess.get("userId").toString());
-            @SuppressWarnings("unchecked")
             List<String> endpoints = (ArrayList<String>) userAccess.get("endpoint");
+            userService.addUser(userId, "BLANK", "BLANK");
             userService.addUserAccess(userId, new HashSet<>(endpoints));
             return ResponseEntity.ok(new ApiResponse<>(200, "User access added successfully"));
         } catch (Exception e) {

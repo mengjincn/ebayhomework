@@ -1,28 +1,39 @@
 package org.jin.homework.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jin.homework.model.User;
+import org.jin.homework.entity.Account;
+import org.jin.homework.entity.Endpoint;
+import org.jin.homework.mapper.AccountMapper;
+import org.jin.homework.mapper.EndpointMapper;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
+    private final EndpointMapper endpointMapper;
+    private final AccountMapper accountMapper;
 
-    private static final String USER_ACCESS_FILE = "user_access.json";
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    public User decodeAuthHeader(String authHeader) throws IOException {
-        String decodedHeader = new String(Base64.getDecoder().decode(authHeader));
-        return objectMapper.readValue(decodedHeader, User.class);
+    public UserService(EndpointMapper endpointMapper, AccountMapper accountMapper) {
+        this.endpointMapper = endpointMapper;
+        this.accountMapper = accountMapper;
     }
 
+
     public void addUserAccess(Long userId, Set<String> endpoints) throws IOException {
-        Map<Long, Set<String>> userAccess = loadUserAccess();
-        userAccess.put(userId, endpoints);
+        Map<Long, Set<String>> userAccessExist = loadUserAccess();
+        Map<Long, Set<String>> userAccess = new HashMap<>();
+        if (userAccessExist.containsKey(userId)) {
+            Set<String> existEndpoints = userAccessExist.get(userId);
+            Set<String> newEndpoints = endpoints.stream()
+                    .filter(endpoint -> !existEndpoints.contains(endpoint))
+                    .collect(Collectors.toSet());
+
+            userAccess.put(userId, newEndpoints);
+        } else {
+            userAccess.put(userId, endpoints);
+        }
         saveUserAccess(userAccess);
     }
 
@@ -32,16 +43,29 @@ public class UserService {
         return userResources != null && userResources.contains(resource);
     }
 
-    private Map<Long, Set<String>> loadUserAccess() throws IOException {
-        File file = new File(USER_ACCESS_FILE);
-        if (file.exists()) {
-            return objectMapper.readValue(file, new TypeReference<Map<Long, Set<String>>>() {
-            });
+    private Map<Long, Set<String>> loadUserAccess() {
+        Map<Long, Set<String>> userAccess = new HashMap<>();
+        List<Endpoint> allEndpoints = endpointMapper.getAllEndpoints();
+        for (Endpoint endpoint : allEndpoints) {
+            userAccess.computeIfAbsent(endpoint.getUserId(), k -> new HashSet<>()).add(endpoint.getEndpoint());
         }
-        return new HashMap<>();
+        return userAccess;
     }
 
     private void saveUserAccess(Map<Long, Set<String>> userAccess) throws IOException {
-        objectMapper.writeValue(new File(USER_ACCESS_FILE), userAccess);
+        userAccess.forEach(
+                (id, endpoints) -> {
+                    for (String endpoint : endpoints) {
+                        endpointMapper.insertEndpoint(id, endpoint);
+                    }
+                }
+        );
+    }
+
+    public void addUser(Long userId, String accountName, String role) {
+        Account user = accountMapper.getUserById(userId);
+        if (user == null) {
+            accountMapper.insertUser(new Account(userId, accountName, role));
+        }
     }
 }

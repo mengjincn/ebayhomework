@@ -1,6 +1,7 @@
 package org.jin.homework;
 
 import org.jin.homework.service.UserService;
+import org.jin.homework.util.Base64Util;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +25,7 @@ class HomeworkApplicationTests {
                 "{\"userId\":123456,\"accountName\":\"testUser\",\"role\":\"admin\"}".getBytes()
         );
 
-        var user = userService.decodeAuthHeader(authHeader);
+        var user = Base64Util.decodeAuthHeader(authHeader);
 
         assertEquals(123456L, user.getUserId());
         assertEquals("testUser", user.getAccountName());
@@ -40,7 +41,7 @@ class HomeworkApplicationTests {
 
         assertTrue(userService.hasAccess(userId, "resource A"));
         assertTrue(userService.hasAccess(userId, "resource B"));
-        assertFalse(userService.hasAccess(userId, "resource C"));
+        assertFalse(userService.hasAccess(userId, "resource D"));
     }
 
 }
