@@ -1,0 +1,12 @@
+{
+  "123456": [
+    "resource A",
+    "resource B",
+    "resource C"
+  ],
+  "42": [
+    "resource D",
+    "resource B",
+    "resource C"
+  ]
+}
